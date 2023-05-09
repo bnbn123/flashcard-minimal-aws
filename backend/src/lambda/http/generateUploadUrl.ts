@@ -6,21 +6,36 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { createAttachmentPresignedUrl } from '../../businessLogic/todos'
 import { getUserId } from '../utils'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('generateUploadUrl')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    logger.info('Processing GenerateUploadUrl event...')
     const todoId = event.pathParameters.todoId
-    // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-    
+    const userId = getUserId(event)
 
-    return undefined
+    try {
+      const uploadUrl = await createAttachmentPresignedUrl(userId, todoId)
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          uploadUrl
+        })
+      }
+    } catch (err) {
+      logger.error(`Error: ${err.message}`)
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ err })
+      }
+    }
   }
 )
 
-handler
-  .use(httpErrorHandler())
-  .use(
-    cors({
-      credentials: true
-    })
-  )
+handler.use(httpErrorHandler()).use(
+  cors({
+    credentials: true
+  })
+)

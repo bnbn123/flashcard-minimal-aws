@@ -1,4 +1,7 @@
-import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda'
+import {
+  APIGatewayAuthorizerResult,
+  APIGatewayTokenAuthorizerEvent
+} from 'aws-lambda'
 import 'source-map-support/register'
 
 import { verify, decode } from 'jsonwebtoken'
@@ -6,17 +9,16 @@ import { createLogger } from '../../utils/logger'
 import Axios from 'axios'
 import { Jwt } from '../../auth/Jwt'
 import { JwtPayload } from '../../auth/JwtPayload'
+import { error } from 'console'
 
 const logger = createLogger('auth')
 
-// TODO: Provide a URL that can be used to download a certificate that can be used
-// to verify JWT token signature.
-// To get this URL you need to go to an Auth0 page -> Show Advanced Settings -> Endpoints -> JSON Web Key Set
-const jwksUrl = '...'
+const jwksUrl =
+  'https://dev-fb487ofomnpcw45m.us.auth0.com/.well-known/jwks.json'
 
 export const handler = async (
-  event: CustomAuthorizerEvent
-): Promise<CustomAuthorizerResult> => {
+  event: APIGatewayTokenAuthorizerEvent
+): Promise<APIGatewayAuthorizerResult> => {
   logger.info('Authorizing a user', event.authorizationToken)
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
@@ -55,13 +57,29 @@ export const handler = async (
 }
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
+  logger.info('Start verifing token', authHeader.slice(0, 20))
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
 
-  // TODO: Implement token verification
-  // You should implement it similarly to how it was implemented for the exercise for the lesson 5
-  // You can read more about how to do this here: https://auth0.com/blog/navigating-rs256-and-jwks/
-  return undefined
+  console.log(jwt)
+
+  const reponse = await Axios.get(jwksUrl)
+  const JWTKey = reponse.data.keys.find((key) => (key.kid = jwt.header.kid))
+    ?.x5c?.[0]
+  logger.info('JWTKey', JWTKey)
+
+  if (!JWTKey) {
+    throw error('JWKS url does not contain key')
+  }
+
+  const cert = `-----BEGIN CERTIFICATE-----\n${JWTKey}\n-----END CERTIFICATE-----`
+  const verifiedToken = verify(token, cert, {
+    algorithms: ['RS256']
+  }) as JwtPayload
+
+  logger.info('End verifing token', verifiedToken)
+
+  return verifiedToken
 }
 
 function getToken(authHeader: string): string {
