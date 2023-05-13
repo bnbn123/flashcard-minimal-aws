@@ -4,7 +4,7 @@ import { CreateFlashCardRequest } from '../types/CreateFlashCardRequest'
 import Axios from 'axios'
 import { UpdateFlashCardRequest } from '../types/UpdateFlashCardRequest'
 
-export async function getTodos(idToken: string): Promise<FlashCard[]> {
+export async function getFlashCards(idToken: string): Promise<FlashCard[]> {
   console.log('Fetching flashcards')
 
   const response = await Axios.get(`${apiEndpoint}/flashcards`, {
@@ -17,13 +17,13 @@ export async function getTodos(idToken: string): Promise<FlashCard[]> {
   return response.data.items
 }
 
-export async function createTodo(
+export async function createFlashCard(
   idToken: string,
-  newTodo: CreateFlashCardRequest
+  newFlashCard: CreateFlashCardRequest
 ): Promise<FlashCard> {
   const response = await Axios.post(
     `${apiEndpoint}/flashcards`,
-    JSON.stringify(newTodo),
+    JSON.stringify(newFlashCard),
     {
       headers: {
         'Content-Type': 'application/json',
@@ -34,14 +34,14 @@ export async function createTodo(
   return response.data.item
 }
 
-export async function patchTodo(
+export async function patchFlashCard(
   idToken: string,
   flashCardId: string,
-  updatedTodo: UpdateFlashCardRequest
+  updatedFlashCard: UpdateFlashCardRequest
 ): Promise<void> {
   await Axios.patch(
     `${apiEndpoint}/flashcards/${flashCardId}`,
-    JSON.stringify(updatedTodo),
+    JSON.stringify(updatedFlashCard),
     {
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export async function patchTodo(
   )
 }
 
-export async function deleteTodo(
+export async function deleteFlashCard(
   idToken: string,
   flashCardId: string
 ): Promise<void> {

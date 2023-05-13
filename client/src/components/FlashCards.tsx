@@ -15,10 +15,10 @@ import {
 } from 'semantic-ui-react'
 
 import {
-  createTodo,
-  deleteTodo,
-  getTodos,
-  patchTodo
+  createFlashCard,
+  deleteFlashCard,
+  getFlashCards,
+  patchFlashCard
 } from '../api/flashcards-api'
 import Auth from '../auth/Auth'
 import { FlashCard } from '../types/FlashCard'
@@ -30,8 +30,8 @@ interface FlashCardsProps {
 
 interface FlashCardsState {
   flashcards: FlashCard[]
-  newTodoName: string
-  loadingTodos: boolean
+  newFlashCardName: string
+  loadingFlashcards: boolean
 }
 
 export class FlashCards extends React.PureComponent<
@@ -40,71 +40,75 @@ export class FlashCards extends React.PureComponent<
 > {
   state: FlashCardsState = {
     flashcards: [],
-    newTodoName: '',
-    loadingTodos: true
+    newFlashCardName: '',
+    loadingFlashcards: true
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newTodoName: event.target.value })
+    this.setState({ newFlashCardName: event.target.value })
   }
 
   onEditButtonClick = (flashCardId: string) => {
     this.props.history.push(`/flashcards/${flashCardId}/edit`)
   }
 
-  onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onFlashCardCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       const dueDate = this.calculateDueDate()
-      const newTodo = await createTodo(this.props.auth.getIdToken(), {
-        name: this.state.newTodoName,
+      const newFlashCard = await createFlashCard(this.props.auth.getIdToken(), {
+        name: this.state.newFlashCardName,
         dueDate
       })
       this.setState({
-        flashcards: [...this.state.flashcards, newTodo],
-        newTodoName: ''
+        flashcards: [...this.state.flashcards, newFlashCard],
+        newFlashCardName: ''
       })
     } catch {
-      alert('Todo creation failed')
+      alert('FlashCard creation failed')
     }
   }
 
-  onTodoDelete = async (flashCardId: string) => {
+  onFlashCardDelete = async (flashCardId: string) => {
     try {
-      await deleteTodo(this.props.auth.getIdToken(), flashCardId)
+      await deleteFlashCard(this.props.auth.getIdToken(), flashCardId)
       this.setState({
         flashcards: this.state.flashcards.filter(
-          (todo) => todo.flashCardId !== flashCardId
+          (flashcard) => flashcard.flashCardId !== flashCardId
         )
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('FlashCard deletion failed')
     }
   }
 
-  onTodoCheck = async (pos: number) => {
+  onFlashCardCheck = async (pos: number) => {
     try {
-      const todo = this.state.flashcards[pos]
-      await patchTodo(this.props.auth.getIdToken(), todo.flashCardId, {
-        name: todo.name,
-        dueDate: todo.dueDate,
-        done: !todo.done
-      })
+      const flashcard = this.state.flashcards[pos]
+      await patchFlashCard(
+        this.props.auth.getIdToken(),
+        flashcard.flashCardId,
+        {
+          name: flashcard.name,
+          dueDate: flashcard.dueDate,
+          done: !flashcard.done
+        }
+      )
       this.setState({
         flashcards: update(this.state.flashcards, {
-          [pos]: { done: { $set: !todo.done } }
+          [pos]: { done: { $set: !flashcard.done } }
         })
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('FlashCard deletion failed')
     }
   }
 
   async componentDidMount() {
     try {
-      const flashcards = await getTodos(this.props.auth.getIdToken())
+      const flashcards = await getFlashCards(this.props.auth.getIdToken())
       this.setState({
         flashcards,
-        loadingTodos: false
+        loadingFlashcards: false
       })
     } catch (e) {
       alert(`Failed to fetch flashcards: ${(e as Error).message}`)
@@ -114,16 +118,16 @@ export class FlashCards extends React.PureComponent<
   render() {
     return (
       <div>
-        <Header as="h1">TODOs</Header>
+        <Header as="h1">FlashCards</Header>
 
-        {this.renderCreateTodoInput()}
+        {this.renderCreateFlashCardInput()}
 
-        {this.renderTodos()}
+        {this.renderFlashCardsList()}
       </div>
     )
   }
 
-  renderCreateTodoInput() {
+  renderCreateFlashCardInput() {
     return (
       <Grid.Row>
         <Grid.Column width={16}>
@@ -133,7 +137,7 @@ export class FlashCards extends React.PureComponent<
               labelPosition: 'left',
               icon: 'add',
               content: 'New task',
-              onClick: this.onTodoCreate
+              onClick: this.onFlashCardCreate
             }}
             fluid
             actionPosition="left"
@@ -148,47 +152,47 @@ export class FlashCards extends React.PureComponent<
     )
   }
 
-  renderTodos() {
-    if (this.state.loadingTodos) {
+  renderFlashCardsList() {
+    if (this.state.loadingFlashcards) {
       return this.renderLoading()
     }
 
-    return this.renderTodosList()
+    return this.renderFlashCardsListList()
   }
 
   renderLoading() {
     return (
       <Grid.Row>
         <Loader indeterminate active inline="centered">
-          Loading TODOs
+          Loading FlashCards
         </Loader>
       </Grid.Row>
     )
   }
 
-  renderTodosList() {
+  renderFlashCardsListList() {
     return (
       <Grid padded>
-        {this.state.flashcards.map((todo, pos) => {
+        {this.state.flashcards.map((FlashCard, pos) => {
           return (
-            <Grid.Row key={todo.flashCardId}>
+            <Grid.Row key={FlashCard.flashCardId}>
               <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
-                  onChange={() => this.onTodoCheck(pos)}
-                  checked={todo.done}
+                  onChange={() => this.onFlashCardCheck(pos)}
+                  checked={FlashCard.done}
                 />
               </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+                {FlashCard.name}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
-                {todo.dueDate}
+                {FlashCard.dueDate}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(todo.flashCardId)}
+                  onClick={() => this.onEditButtonClick(FlashCard.flashCardId)}
                 >
                   <Icon name="pencil" />
                 </Button>
@@ -197,13 +201,13 @@ export class FlashCards extends React.PureComponent<
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onTodoDelete(todo.flashCardId)}
+                  onClick={() => this.onFlashCardDelete(FlashCard.flashCardId)}
                 >
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
+              {FlashCard.attachmentUrl && (
+                <Image src={FlashCard.attachmentUrl} size="small" wrapped />
               )}
               <Grid.Column width={16}>
                 <Divider />
