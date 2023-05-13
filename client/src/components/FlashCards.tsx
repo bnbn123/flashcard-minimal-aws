@@ -31,6 +31,7 @@ interface FlashCardsProps {
 interface FlashCardsState {
   flashcards: FlashCard[]
   newFlashCardName: string
+  newFlashCardDef: string
   loadingFlashcards: boolean
 }
 
@@ -41,6 +42,7 @@ export class FlashCards extends React.PureComponent<
   state: FlashCardsState = {
     flashcards: [],
     newFlashCardName: '',
+    newFlashCardDef: '',
     loadingFlashcards: true
   }
 
@@ -57,6 +59,7 @@ export class FlashCards extends React.PureComponent<
       const dueDate = this.calculateDueDate()
       const newFlashCard = await createFlashCard(this.props.auth.getIdToken(), {
         name: this.state.newFlashCardName,
+        flashcardDef: this.state.newFlashCardDef,
         dueDate
       })
       this.setState({
@@ -89,6 +92,7 @@ export class FlashCards extends React.PureComponent<
         flashcard.flashCardId,
         {
           name: flashcard.name,
+          flashcardDef: flashcard.flashcardDef,
           dueDate: flashcard.dueDate,
           done: !flashcard.done
         }
