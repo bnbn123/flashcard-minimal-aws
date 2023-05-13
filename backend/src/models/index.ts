@@ -1,2 +1,2 @@
-export { TodoItem } from './TodoItem'
-export { TodoUpdate } from './TodoUpdate'
+export { FlashCardItem } from './FlashCardItem'
+export { FlashCardUpdate } from './FlashCardUpdate'

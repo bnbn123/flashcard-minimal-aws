@@ -1,4 +1,4 @@
-export interface UpdateTodoRequest {
+export interface UpdateFlashCardRequest {
   name: string
   dueDate: string
   done: boolean

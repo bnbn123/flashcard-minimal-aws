@@ -14,24 +14,32 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo
+} from '../api/flashcards-api'
 import Auth from '../auth/Auth'
-import { Todo } from '../types/Todo'
+import { FlashCard } from '../types/FlashCard'
 
-interface TodosProps {
+interface FlashCardsProps {
   auth: Auth
   history: History
 }
 
-interface TodosState {
-  todos: Todo[]
+interface FlashCardsState {
+  flashcards: FlashCard[]
   newTodoName: string
   loadingTodos: boolean
 }
 
-export class Todos extends React.PureComponent<TodosProps, TodosState> {
-  state: TodosState = {
-    todos: [],
+export class FlashCards extends React.PureComponent<
+  FlashCardsProps,
+  FlashCardsState
+> {
+  state: FlashCardsState = {
+    flashcards: [],
     newTodoName: '',
     loadingTodos: true
   }
@@ -40,8 +48,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     this.setState({ newTodoName: event.target.value })
   }
 
-  onEditButtonClick = (todoId: string) => {
-    this.props.history.push(`/todos/${todoId}/edit`)
+  onEditButtonClick = (flashCardId: string) => {
+    this.props.history.push(`/flashcards/${flashCardId}/edit`)
   }
 
   onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -52,7 +60,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newTodo],
+        flashcards: [...this.state.flashcards, newTodo],
         newTodoName: ''
       })
     } catch {
@@ -60,11 +68,13 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     }
   }
 
-  onTodoDelete = async (todoId: string) => {
+  onTodoDelete = async (flashCardId: string) => {
     try {
-      await deleteTodo(this.props.auth.getIdToken(), todoId)
+      await deleteTodo(this.props.auth.getIdToken(), flashCardId)
       this.setState({
-        todos: this.state.todos.filter(todo => todo.todoId !== todoId)
+        flashcards: this.state.flashcards.filter(
+          (todo) => todo.flashCardId !== flashCardId
+        )
       })
     } catch {
       alert('Todo deletion failed')
@@ -73,14 +83,14 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   onTodoCheck = async (pos: number) => {
     try {
-      const todo = this.state.todos[pos]
-      await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+      const todo = this.state.flashcards[pos]
+      await patchTodo(this.props.auth.getIdToken(), todo.flashCardId, {
         name: todo.name,
         dueDate: todo.dueDate,
         done: !todo.done
       })
       this.setState({
-        todos: update(this.state.todos, {
+        flashcards: update(this.state.flashcards, {
           [pos]: { done: { $set: !todo.done } }
         })
       })
@@ -91,13 +101,13 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   async componentDidMount() {
     try {
-      const todos = await getTodos(this.props.auth.getIdToken())
+      const flashcards = await getTodos(this.props.auth.getIdToken())
       this.setState({
-        todos,
+        flashcards,
         loadingTodos: false
       })
     } catch (e) {
-      alert(`Failed to fetch todos: ${(e as Error).message}`)
+      alert(`Failed to fetch flashcards: ${(e as Error).message}`)
     }
   }
 
@@ -159,9 +169,9 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   renderTodosList() {
     return (
       <Grid padded>
-        {this.state.todos.map((todo, pos) => {
+        {this.state.flashcards.map((todo, pos) => {
           return (
-            <Grid.Row key={todo.todoId}>
+            <Grid.Row key={todo.flashCardId}>
               <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
                   onChange={() => this.onTodoCheck(pos)}
@@ -178,7 +188,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(todo.todoId)}
+                  onClick={() => this.onEditButtonClick(todo.flashCardId)}
                 >
                   <Icon name="pencil" />
                 </Button>
@@ -187,7 +197,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onTodoDelete(todo.todoId)}
+                  onClick={() => this.onTodoDelete(todo.flashCardId)}
                 >
                   <Icon name="delete" />
                 </Button>

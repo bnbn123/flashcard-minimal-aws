@@ -6,21 +6,21 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-import { updateTodo } from '../../businessLogic/todos'
-import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { updateFlashCard } from '../../businessLogic/flashcards'
+import { UpdateFlashCardRequest } from '../../requests/UpdateFlashCardRequest'
 
-const logger = createLogger('updateTodo')
+const logger = createLogger('updateFlashCard')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Processing UpdateTodo event...')
-    const todoId = event.pathParameters.todoId
-    const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+    logger.info('Processing UpdateFlashCard event...')
+    const flashCardId = event.pathParameters.flashCardId
+    const updatedFlashCard: UpdateFlashCardRequest = JSON.parse(event.body)
     const userId: string = getUserId(event)
 
     try {
-      await updateTodo(userId, todoId, updatedTodo)
-      logger.info(`Successfully updated the todo item: ${todoId}`)
+      await updateFlashCard(userId, flashCardId, updatedFlashCard)
+      logger.info(`Successfully updated the flash card item: ${flashCardId}`)
       return {
         statusCode: 200,
         body: undefined

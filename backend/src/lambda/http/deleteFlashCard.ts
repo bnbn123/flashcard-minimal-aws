@@ -6,19 +6,19 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-import { deleteTodo } from '../../businessLogic/todos'
+import { deleteFlashCard } from '../../businessLogic/flashcards'
 
-const logger = createLogger('deleteTodo')
+const logger = createLogger('deleteFlashCard')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Processing DeleteTodo event...')
-    const todoId = event.pathParameters.todoId
+    logger.info('Processing deleteFlashCard event...')
+    const flashCardId = event.pathParameters.flashCardId
     const userId = getUserId(event)
 
     try {
-      await deleteTodo(userId, todoId)
-      logger.info(`Successfully deleted todo item: ${todoId}`)
+      await deleteFlashCard(userId, flashCardId)
+      logger.info(`Successfully deleted todo item: ${flashCardId}`)
       return {
         statusCode: 204,
         body: undefined

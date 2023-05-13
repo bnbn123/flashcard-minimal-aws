@@ -1,19 +1,19 @@
 import * as AWS from 'aws-sdk'
 import { createLogger } from '../utils/logger'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-import { TodoItem, TodoUpdate } from '../models'
+import { FlashCardItem, FlashCardUpdate } from '../models'
 const AWSXRay = require('aws-xray-sdk')
 
 const XAWS = AWSXRay.captureAWS(AWS)
-const logger = createLogger('todoAccess')
+const logger = createLogger('flashcardAccess')
 
-export class TodoAccess {
+export class FlashCardAccess {
   constructor(
     private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
     private readonly todosTable = process.env.TODOS_TABLE
   ) {}
 
-  async getTodos(userId: string): Promise<TodoItem[]> {
+  async getFlashCards(userId: string): Promise<FlashCardItem[]> {
     logger.info('Getting all todo items')
     const result = await this.docClient
       .query({
@@ -25,11 +25,11 @@ export class TodoAccess {
       })
       .promise()
 
-    return result.Items as TodoItem[]
+    return result.Items as FlashCardItem[]
   }
 
-  async createTodo(newTodo: TodoItem): Promise<TodoItem> {
-    logger.info(`Creating new todo item: ${newTodo.todoId}`)
+  async createFlashCard(newTodo: FlashCardItem): Promise<FlashCardItem> {
+    logger.info(`Creating new todo item: ${newTodo.flashCardId}`)
     await this.docClient
       .put({
         TableName: this.todosTable,
@@ -39,17 +39,17 @@ export class TodoAccess {
     return newTodo
   }
 
-  async updateTodo(
+  async updateFlashCard(
     userId: string,
-    todoId: string,
-    updatedTodo: TodoUpdate
+    flashCardId: string,
+    updatedTodo: FlashCardUpdate
   ): Promise<void> {
-    logger.info(`Updating a todo item: ${todoId}`)
+    logger.info(`Updating a todo item: ${flashCardId}`)
     await this.docClient
       .update({
         TableName: this.todosTable,
-        Key: { userId, todoId },
-        ConditionExpression: 'attribute_exists(todoId)',
+        Key: { userId, flashCardId },
+        ConditionExpression: 'attribute_exists(flashCardId)',
         UpdateExpression: 'set #n = :n, dueDate = :due, done = :dn',
         ExpressionAttributeNames: { '#n': 'name' },
         ExpressionAttributeValues: {
@@ -61,30 +61,30 @@ export class TodoAccess {
       })
       .promise()
 
-    // const toDoUpdatedItem = result.Attributes
-    // logger.info(`Todo Updated Item: ${toDoUpdatedItem}`)
-    // return toDoUpdatedItem as TodoUpdate
+    // const FlashCardUpdatedItem = result.Attributes
+    // logger.info(`Todo Updated Item: ${FlashCardUpdatedItem}`)
+    // return FlashCardUpdatedItem as FlashCardUpdate
   }
 
-  async deleteTodo(userId: string, todoId: string): Promise<void> {
+  async deleteFlashCard(userId: string, flashCardId: string): Promise<void> {
     await this.docClient
       .delete({
         TableName: this.todosTable,
-        Key: { userId, todoId }
+        Key: { userId, flashCardId }
       })
       .promise()
   }
 
   async saveImgUrl(
     userId: string,
-    todoId: string,
+    flashCardId: string,
     attachmentUrl: string
   ): Promise<void> {
     await this.docClient
       .update({
         TableName: this.todosTable,
-        Key: { userId, todoId },
-        ConditionExpression: 'attribute_exists(todoId)',
+        Key: { userId, flashCardId },
+        ConditionExpression: 'attribute_exists(flashCardId)',
         UpdateExpression: 'set attachmentUrl = :attachmentUrl',
         ExpressionAttributeValues: {
           ':attachmentUrl': attachmentUrl

@@ -10,7 +10,7 @@ This application will allow creating/removing/updating/fetching TODO items. Each
 
 The application should store TODO items, and each TODO item contains the following fields:
 
-- `todoId` (string) - a unique id for an item
+- `flashCardId` (string) - a unique id for an item
 - `createdAt` (string) - date and time when an item was created
 - `name` (string) - name of a TODO item (e.g. "Change a light bulb")
 - `dueDate` (string) - date and time by which an item should be completed
@@ -54,7 +54,7 @@ It should return data that looks like this:
 {
   "items": [
     {
-      "todoId": "123",
+      "flashCardId": "123",
       "createdAt": "2019-07-27T20:01:45.424Z",
       "name": "Buy milk",
       "dueDate": "2019-07-29T20:01:45.424Z",
@@ -62,7 +62,7 @@ It should return data that looks like this:
       "attachmentUrl": "http://example.com/image.png"
     },
     {
-      "todoId": "456",
+      "flashCardId": "456",
       "createdAt": "2019-07-27T20:01:45.424Z",
       "name": "Send a letter",
       "dueDate": "2019-07-29T20:01:45.424Z",
@@ -92,7 +92,7 @@ It should return a new TODO item that looks like this:
 ```json
 {
   "item": {
-    "todoId": "123",
+    "flashCardId": "123",
     "createdAt": "2019-07-27T20:01:45.424Z",
     "name": "Buy milk",
     "dueDate": "2019-07-29T20:01:45.424Z",

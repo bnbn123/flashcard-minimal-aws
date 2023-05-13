@@ -1,6 +1,7 @@
-export interface TodoItem {
+export interface FlashCardItem {
   userId: string
-  todoId: string
+  flashCardId: string
+  flashCardDef: string
   createdAt: string
   name: string
   dueDate: string

@@ -5,20 +5,20 @@ import { cors } from 'middy/middlewares'
 
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-import { createTodo } from '../../businessLogic/todos'
-import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { createFlashCard } from '../../businessLogic/flashcards'
+import { CreateFlashCardRequest } from '../../requests/CreateFlashCardRequest'
 
-const logger = createLogger('createTodo')
+const logger = createLogger('createFlashCard')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Processing CreateTodo event...')
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    logger.info('Processing createFlashCard event...')
+    const newTodo: CreateFlashCardRequest = JSON.parse(event.body)
     const userId = getUserId(event)
 
     try {
-      const newItem = await createTodo(userId, newTodo)
-      logger.info(`Successfully created a new todo item: ${newItem}`)
+      const newItem = await createFlashCard(userId, newTodo)
+      logger.info(`Successfully created a new flashcard item: ${newItem}`)
 
       return {
         statusCode: 201,
