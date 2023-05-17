@@ -1,5 +1,5 @@
 /**
- * Fields in a request to update a single TODO item.
+ * Fields in a request to update a single Flash Card item.
  */
 export interface UpdateFlashCardRequest {
   name: string

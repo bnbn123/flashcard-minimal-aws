@@ -18,7 +18,7 @@ export const handler = middy(
 
     try {
       await deleteFlashCard(userId, flashCardId)
-      logger.info(`Successfully deleted todo item: ${flashCardId}`)
+      logger.info(`Successfully deleted flash card item: ${flashCardId}`)
       return {
         statusCode: 204,
         body: undefined

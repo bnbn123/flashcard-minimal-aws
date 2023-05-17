@@ -6,7 +6,6 @@ import * as React from 'react'
 import {
   Button,
   Checkbox,
-  Divider,
   Grid,
   Header,
   Icon,

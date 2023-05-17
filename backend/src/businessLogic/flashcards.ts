@@ -33,9 +33,9 @@ export async function createFlashCard(
 export async function updateFlashCard(
   userId: string,
   flashCardId: string,
-  updatedTodo: FlashCardUpdate
+  updatedFlashCard: FlashCardUpdate
 ): Promise<void> {
-  return flashcardAccess.updateFlashCard(userId, flashCardId, updatedTodo)
+  return flashcardAccess.updateFlashCard(userId, flashCardId, updatedFlashCard)
 }
 
 export async function deleteFlashCard(

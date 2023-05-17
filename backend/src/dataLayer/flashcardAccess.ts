@@ -14,7 +14,7 @@ export class FlashCardAccess {
   ) {}
 
   async getFlashCards(userId: string): Promise<FlashCardItem[]> {
-    logger.info('Getting all todo items')
+    logger.info('Getting all flash card items')
     const result = await this.docClient
       .query({
         TableName: this.flashcardsTable,
@@ -28,23 +28,23 @@ export class FlashCardAccess {
     return result.Items as FlashCardItem[]
   }
 
-  async createFlashCard(newTodo: FlashCardItem): Promise<FlashCardItem> {
-    logger.info(`Creating new todo item: ${newTodo.flashCardId}`)
+  async createFlashCard(newFlashCard: FlashCardItem): Promise<FlashCardItem> {
+    logger.info(`Creating new flash card item: ${newFlashCard.flashCardId}`)
     await this.docClient
       .put({
         TableName: this.flashcardsTable,
-        Item: newTodo
+        Item: newFlashCard
       })
       .promise()
-    return newTodo
+    return newFlashCard
   }
 
   async updateFlashCard(
     userId: string,
     flashCardId: string,
-    updatedTodo: FlashCardUpdate
+    updatedFlashCard: FlashCardUpdate
   ): Promise<void> {
-    logger.info(`Updating a todo item: ${flashCardId}`)
+    logger.info(`Updating a flash card item: ${flashCardId}`)
     await this.docClient
       .update({
         TableName: this.flashcardsTable,
@@ -53,9 +53,9 @@ export class FlashCardAccess {
         UpdateExpression: 'set #n = :n, dueDate = :due, done = :dn',
         ExpressionAttributeNames: { '#n': 'name' },
         ExpressionAttributeValues: {
-          ':n': updatedTodo.name,
-          ':due': updatedTodo.dueDate,
-          ':dn': updatedTodo.done
+          ':n': updatedFlashCard.name,
+          ':due': updatedFlashCard.dueDate,
+          ':dn': updatedFlashCard.done
         },
         ReturnValues: 'ALL_NEW'
       })

@@ -1,23 +1,24 @@
-# Serverless TODO
+# Serverless Flash Cards App
 
-To implement this project, you need to implement a simple TODO application using AWS Lambda and Serverless framework. Search for all comments starting with the `TODO:` in the code to find the placeholders that you need to implement.
+To implement this project, you need to implement a simple Flash Cards application using AWS Lambda and Serverless framework. Search for all comments starting with the `Flash Cards:` in the code to find the placeholders that you need to implement.
 
 # Functionality of the application
 
-This application will allow creating/removing/updating/fetching TODO items. Each TODO item can optionally have an attachment image. Each user only has access to TODO items that he/she has created.
+This application will allow creating/removing/updating/fetching Flash Cards items. Each Flash Cards item can optionally have an attachment image. Each user only has access to Flash Cards items that he/she has created.
 
-# TODO items
+# Flash Cards items
 
-The application should store TODO items, and each TODO item contains the following fields:
+The application should store Flash Cards items, and each Flash Cards item contains the following fields:
 
 - `flashCardId` (string) - a unique id for an item
+- `flashCardDef` (string) - definition of the word(name)
 - `createdAt` (string) - date and time when an item was created
-- `name` (string) - name of a TODO item (e.g. "Change a light bulb")
+- `name` (string) - name of a Flash Cards item (e.g. "Change a light bulb")
 - `dueDate` (string) - date and time by which an item should be completed
 - `done` (boolean) - true if an item was completed, false otherwise
-- `attachmentUrl` (string) (optional) - a URL pointing to an image attached to a TODO item
+- `attachmentUrl` (string) (optional) - a URL pointing to an image attached to a Flash Cards item
 
-You might also store an id of a user who created a TODO item.
+You might also store an id of a user who created a Flash Cards item.
 
 ## Prerequisites
 
@@ -46,7 +47,7 @@ To implement this project, you need to implement the following functions and con
 
 - `Auth` - this function should implement a custom authorizer for API Gateway that should be added to all other functions.
 
-- `GetTodos` - should return all TODOs for a current user. A user id can be extracted from a JWT token that is sent by the frontend
+- `GetFlashCards` - should return all FlashCards for a current user. A user id can be extracted from a JWT token that is sent by the frontend
 
 It should return data that looks like this:
 
@@ -55,14 +56,16 @@ It should return data that looks like this:
   "items": [
     {
       "flashCardId": "123",
+      "flashCardDef": "osdnosandousanduonsauodsanuodnsad",
       "createdAt": "2019-07-27T20:01:45.424Z",
-      "name": "Buy milk",
+      "name": "milk",
       "dueDate": "2019-07-29T20:01:45.424Z",
       "done": false,
       "attachmentUrl": "http://example.com/image.png"
     },
     {
       "flashCardId": "456",
+      "flashCardDef": "osdnosandousanduonsauodsanuodnsad",
       "createdAt": "2019-07-27T20:01:45.424Z",
       "name": "Send a letter",
       "dueDate": "2019-07-29T20:01:45.424Z",
@@ -73,13 +76,14 @@ It should return data that looks like this:
 }
 ```
 
-- `CreateTodo` - should create a new TODO for a current user. A shape of data send by a client application to this function can be found in the `CreateTodoRequest.ts` file
+- `CreateFlashCard` - should create a new FlashCard for a current user. A shape of data send by a client application to this function can be found in the `CreateFlashCardRequest.ts` file
 
-It receives a new TODO item to be created in JSON format that looks like this:
+It receives a new FlashCard item to be created in JSON format that looks like this:
 
 ```json
 {
   "createdAt": "2019-07-27T20:01:45.424Z",
+  "flashCardDef": "osdnosandousanduonsauodsanuodnsad",
   "name": "Buy milk",
   "dueDate": "2019-07-29T20:01:45.424Z",
   "done": false,
@@ -87,12 +91,13 @@ It receives a new TODO item to be created in JSON format that looks like this:
 }
 ```
 
-It should return a new TODO item that looks like this:
+It should return a new FlashCard item that looks like this:
 
 ```json
 {
   "item": {
     "flashCardId": "123",
+    "flashCardDef": "osdnosandousanduonsauodsanuodnsad",
     "createdAt": "2019-07-27T20:01:45.424Z",
     "name": "Buy milk",
     "dueDate": "2019-07-29T20:01:45.424Z",
@@ -102,13 +107,14 @@ It should return a new TODO item that looks like this:
 }
 ```
 
-- `UpdateTodo` - should update a TODO item created by a current user. A shape of data send by a client application to this function can be found in the `UpdateTodoRequest.ts` file
+- `UpdateFlashCard` - should update a FlashCard item created by a current user. A shape of data send by a client application to this function can be found in the `UpdateFlashCardRequest.ts` file
 
-It receives an object that contains three fields that can be updated in a TODO item:
+It receives an object that contains three fields that can be updated in a FlashCard item:
 
 ```json
 {
   "name": "Buy bread",
+  "flashCardDef": "osdnosandousanduonsauodsanuodnsad",
   "dueDate": "2019-07-29T20:01:45.424Z",
   "done": true
 }
@@ -118,11 +124,21 @@ The id of an item that should be updated is passed as a URL parameter.
 
 It should return an empty body.
 
-- `DeleteTodo` - should delete a TODO item created by a current user. Expects an id of a TODO item to remove.
+- `DeleteFlashCard` - should delete a FlashCard item created by a current user. Expects an id of a FlashCard item to remove.
 
 It should return an empty body.
 
-- `GenerateUploadUrl` - returns a pre-signed URL that can be used to upload an attachment file for a TODO item.
+- `GenerateUploadUrl` - returns a pre-signed URL that can be used to upload an attachment file for a FlashCard item.
+
+It should return a JSON object that looks like this:
+
+```json
+{
+  "uploadUrl": "https://s3-bucket-name.s3.eu-west-2.amazonaws.com/image.png"
+}
+```
+
+- `GetFlashCardById` - returns a flash card if any that has flashCardId that we can get from match params
 
 It should return a JSON object that looks like this:
 
@@ -189,10 +205,10 @@ _Please leave your application running until a submission is reviewed. If implem
 
 # Suggestions
 
-To store TODO items, you might want to use a DynamoDB table with local secondary index(es). A create a local secondary index you need to create a DynamoDB resource like this:
+To store FlashCard items, you might want to use a DynamoDB table with local secondary index(es). A create a local secondary index you need to create a DynamoDB resource like this:
 
 ```yml
-TodosTable:
+FlashCardsTable:
   Type: AWS::DynamoDB::Table
   Properties:
     AttributeDefinitions:
@@ -208,7 +224,7 @@ TodosTable:
       - AttributeName: sortKey
         KeyType: RANGE
     BillingMode: PAY_PER_REQUEST
-    TableName: ${self:provider.environment.TODOS_TABLE}
+    TableName: ${self:provider.environment.FLASHCARDS_TABLE}
     LocalSecondaryIndexes:
       - IndexName: ${self:provider.environment.INDEX_NAME}
         KeySchema:
@@ -257,7 +273,7 @@ npm install
 npm run start
 ```
 
-This should start a development server with the React application that will interact with the serverless TODO application.
+This should start a development server with the React application that will interact with the serverless FLASHCARD application.
 
 # Postman collection
 
@@ -355,3 +371,13 @@ npm run start
 ```
 
 This should start a React development server at http://localhost:3000/s that will interact with the backend APIs.
+
+# Screenshots:
+
+## is in /screenshots folder and they captured:
+
+- deployment to serverless and successful deployment of cloud formation
+- home page and login
+- After login, create new flash card box is in view with all flash cards below and each can be checked "Done",edited or deleted
+- hover-able flash card and checkbox done when you've memorize
+- Edit page where you can also add new word and definition, and images

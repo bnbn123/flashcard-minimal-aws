@@ -1,5 +1,5 @@
 /**
- * Fields in a request to create a single TODO item.
+ * Fields in a request to create a single Flash Card item.
  */
 export interface CreateFlashCardRequest {
   name: string
