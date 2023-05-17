@@ -21,8 +21,6 @@ export async function createFlashCard(
   idToken: string,
   newFlashCard: CreateFlashCardRequest
 ): Promise<FlashCard> {
-  console.log('🚀 ~ file: flashcards-api.ts:24 ~ newFlashCard:', newFlashCard)
-  console.log('🚀 ~ file: flashcards-api.ts:21 ~ createFlashCard:onCalled')
   const response = await Axios.post(
     `${apiEndpoint}/flashcards`,
     JSON.stringify(newFlashCard),
@@ -87,4 +85,20 @@ export async function uploadFile(
   file: Buffer
 ): Promise<void> {
   await Axios.put(uploadUrl, file)
+}
+
+export async function getFlashCardById(
+  idToken: string,
+  flashCardId: string
+): Promise<FlashCard> {
+  console.log('Fetching flashcards by Id')
+
+  const response = await Axios.get(`${apiEndpoint}/flashcards/${flashCardId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
+    }
+  })
+  console.log('FlashCards:', response.data)
+  return response.data.items
 }

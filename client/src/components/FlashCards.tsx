@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
@@ -9,10 +10,10 @@ import {
   Grid,
   Header,
   Icon,
-  Image,
   Loader,
   Form,
-  Message
+  Message,
+  TextArea
 } from 'semantic-ui-react'
 
 import {
@@ -23,13 +24,14 @@ import {
 } from '../api/flashcards-api'
 import Auth from '../auth/Auth'
 import { FlashCard } from '../types/FlashCard'
+import { FlipCard } from './FlipCard'
 
-interface FlashCardsProps {
+export interface FlashCardsProps {
   auth: Auth
   history: History
 }
 
-interface FlashCardsState {
+export interface FlashCardsState {
   flashcards: FlashCard[]
   newFlashCardName: string
   newFlashCardDef: string
@@ -50,7 +52,7 @@ export class FlashCards extends React.PureComponent<
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newFlashCardName: event.target.value })
   }
-  handleDefChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleDefChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     this.setState({ newFlashCardDef: event.target.value })
   }
 
@@ -59,10 +61,6 @@ export class FlashCards extends React.PureComponent<
   }
 
   onFlashCardCreate = async () => {
-    console.log(
-      '🚀 ~ file: FlashCards.tsx:64 ~ onFlashCardCreate= ~ onFlashCardCreate:onClick'
-    )
-
     try {
       const dueDate = this.calculateDueDate()
       const newFlashCard = await createFlashCard(this.props.auth.getIdToken(), {
@@ -131,7 +129,7 @@ export class FlashCards extends React.PureComponent<
   render() {
     return (
       <div>
-        <Header as="h1">FlashCards</Header>
+        <Header as="h1">FlashCards Apps</Header>
 
         {this.renderCreateFlashCardInput()}
 
@@ -143,7 +141,7 @@ export class FlashCards extends React.PureComponent<
   renderCreateFlashCardInput() {
     return (
       <Grid.Row>
-        <Grid.Column width={16}>
+        <Grid.Column>
           <Message>
             <Message.Header>Create Flash Cards</Message.Header>
             <p>
@@ -151,27 +149,34 @@ export class FlashCards extends React.PureComponent<
               definition or summary
             </p>
           </Message>
-          <Form size="large" onSubmit={this.onFlashCardCreate}>
+          <Form
+            size="large"
+            onSubmit={this.onFlashCardCreate}
+            className="create-form"
+          >
             <Form.Group>
               <Form.Input
+                label="Word"
                 placeholder="Word"
                 name="name"
                 value={this.state.newFlashCardName}
                 onChange={this.handleNameChange}
+                size="big"
               />
-              <Form.Input
-                placeholder="Add word definition"
-                name="def"
-                value={this.state.newFlashCardDef}
-                onChange={this.handleDefChange}
-              />
+              <Form.Field width="11">
+                <label>Word definition</label>
+                <TextArea
+                  placeholder="Add word definition"
+                  name="def"
+                  value={this.state.newFlashCardDef}
+                  onChange={this.handleDefChange}
+                  size="huge"
+                />
+              </Form.Field>
 
               <Form.Button type="submit">Add new flashcard</Form.Button>
             </Form.Group>
           </Form>
-        </Grid.Column>
-        <Grid.Column width={16}>
-          <Divider />
         </Grid.Column>
       </Grid.Row>
     )
@@ -197,50 +202,47 @@ export class FlashCards extends React.PureComponent<
 
   renderFlashCardsListList() {
     return (
-      <Grid padded>
-        {this.state.flashcards.map((FlashCard, pos) => {
-          return (
-            <Grid.Row key={FlashCard.flashCardId}>
-              <Grid.Column width={1} verticalAlign="middle">
+      <div className="cards-container">
+        {this.state.flashcards.map((flashcard, pos) => (
+          <div>
+            <FlipCard {...flashcard} />
+            <div className="card-button-container">
+              <div
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  marginRight: '5px'
+                }}
+              >
+                <label htmlFor={`Checkbox-${pos}`}>Done</label>
                 <Checkbox
+                  id={`Checkbox-${pos}`}
                   onChange={() => this.onFlashCardCheck(pos)}
-                  checked={FlashCard.done}
+                  checked={flashcard.done}
                 />
-              </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
-                {FlashCard.name}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {FlashCard.dueDate}
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              </div>
+              <div>
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(FlashCard.flashCardId)}
+                  onClick={() => this.onEditButtonClick(flashcard.flashCardId)}
                 >
                   <Icon name="pencil" />
                 </Button>
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              </div>
+              <div>
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onFlashCardDelete(FlashCard.flashCardId)}
+                  onClick={() => this.onFlashCardDelete(flashcard.flashCardId)}
                 >
                   <Icon name="delete" />
                 </Button>
-              </Grid.Column>
-              {FlashCard.attachmentUrl && (
-                <Image src={FlashCard.attachmentUrl} size="small" wrapped />
-              )}
-              <Grid.Column width={16}>
-                <Divider />
-              </Grid.Column>
-            </Grid.Row>
-          )
-        })}
-      </Grid>
+              </div>
+            </div>{' '}
+          </div>
+        ))}
+      </div>
     )
   }
 

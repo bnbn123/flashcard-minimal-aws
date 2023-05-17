@@ -13,11 +13,11 @@ const logger = createLogger('createFlashCard')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing createFlashCard event...')
-    const newTodo: CreateFlashCardRequest = JSON.parse(event.body)
+    const newFlashCard: CreateFlashCardRequest = JSON.parse(event.body)
     const userId = getUserId(event)
 
     try {
-      const newItem = await createFlashCard(userId, newTodo)
+      const newItem = await createFlashCard(userId, newFlashCard)
       logger.info(`Successfully created a new flashcard item: ${newItem}`)
 
       return {

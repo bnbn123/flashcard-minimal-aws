@@ -1,7 +1,14 @@
 import * as React from 'react'
-import { Form, Button } from 'semantic-ui-react'
+import { Form, Button, TextArea } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
-import { getUploadUrl, uploadFile } from '../api/flashcards-api'
+import {
+  getFlashCardById,
+  getUploadUrl,
+  patchFlashCard,
+  uploadFile
+} from '../api/flashcards-api'
+import { History } from 'history'
+import { FlashCard } from '../types/FlashCard'
 
 enum UploadState {
   NoUpload,
@@ -16,11 +23,15 @@ interface EditFlashCardProps {
     }
   }
   auth: Auth
+  history: History
 }
 
 interface EditFlashCardState {
   file: any
   uploadState: UploadState
+  newFlashCardName: string
+  newFlashCardDef: string
+  flashCard: FlashCard
 }
 
 export class EditFlashCard extends React.PureComponent<
@@ -29,7 +40,46 @@ export class EditFlashCard extends React.PureComponent<
 > {
   state: EditFlashCardState = {
     file: undefined,
-    uploadState: UploadState.NoUpload
+    uploadState: UploadState.NoUpload,
+    newFlashCardName: '',
+    newFlashCardDef: '',
+    flashCard: {
+      flashCardId: '',
+      flashCardDef: '',
+      createdAt: '',
+      name: '',
+      dueDate: '',
+      done: false,
+      attachmentUrl: ''
+    }
+  }
+
+  async componentDidMount() {
+    try {
+      const flashCardId = this.props.match.params.flashCardId // Provide the desired flashcard ID
+      console.log(
+        '🚀 ~ file: EditFlashCard.tsx:60 ~ componentDidMount ~ flashCardId:',
+        flashCardId
+      )
+      const flashCard = await getFlashCardById(
+        this.props.auth.getIdToken(),
+        flashCardId
+      ) // Call the API method
+      this.setState({
+        newFlashCardName: flashCard.name,
+        newFlashCardDef: flashCard.flashCardDef,
+        flashCard
+      })
+    } catch (error) {
+      alert('Could not get Flash Card By Id')
+    }
+  }
+
+  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newFlashCardName: event.target.value })
+  }
+  handleDefChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ newFlashCardDef: event.target.value })
   }
 
   handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,11 +93,33 @@ export class EditFlashCard extends React.PureComponent<
 
   handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault()
-
+    const { file, newFlashCardDef, newFlashCardName } = this.state
     try {
-      if (!this.state.file) {
-        alert('File should be selected')
+      if (
+        newFlashCardDef === this.state.flashCard.flashCardDef &&
+        newFlashCardName === this.state.flashCard.name
+      ) {
+        alert('Enter something to both fields')
         return
+      }
+
+      //update card info
+
+      await patchFlashCard(
+        this.props.auth.getIdToken(),
+        this.props.match.params.flashCardId,
+        {
+          name: newFlashCardName,
+          flashCardDef: newFlashCardName,
+          dueDate: this.state.flashCard.dueDate,
+          done: this.state.flashCard.done
+        }
+      )
+      alert('Flash card info updated')
+
+      if (!file) {
+        alert('No file selected')
+        this.props.history.push('/')
       }
 
       this.setUploadState(UploadState.FetchingPresignedUrl)
@@ -60,8 +132,9 @@ export class EditFlashCard extends React.PureComponent<
       await uploadFile(uploadUrl, this.state.file)
 
       alert('File was uploaded!')
+      this.props.history.push('/')
     } catch (e) {
-      alert('Could not upload a file: ' + (e as Error).message)
+      alert('There was an error: ' + (e as Error).message)
     } finally {
       this.setUploadState(UploadState.NoUpload)
     }
@@ -76,9 +149,26 @@ export class EditFlashCard extends React.PureComponent<
   render() {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1>Upload new image and Edit into Field</h1>
 
         <Form onSubmit={this.handleSubmit}>
+          <Form.Group>
+            <Form.Input
+              label="Word"
+              placeholder="Word"
+              name="name"
+              value={this.state.newFlashCardName}
+              onChange={this.handleNameChange}
+            />
+            <TextArea
+              label="Word definition"
+              placeholder="Add word definition"
+              name="def"
+              value={this.state.newFlashCardDef}
+              onChange={this.handleDefChange}
+              size="huge"
+            />
+          </Form.Group>
           <Form.Field>
             <label>File</label>
             <input
@@ -108,8 +198,9 @@ export class EditFlashCard extends React.PureComponent<
           loading={this.state.uploadState !== UploadState.NoUpload}
           type="submit"
         >
-          Upload
+          Save All
         </Button>
+        <Button onClick={() => this.props.history.goBack()}>Cancel</Button>
       </div>
     )
   }

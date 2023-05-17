@@ -92,4 +92,25 @@ export class FlashCardAccess {
       })
       .promise()
   }
+
+  async getFlashCardsById(
+    userId: string,
+    flashCardId: string
+  ): Promise<FlashCardItem> {
+    const result = await this.docClient
+      .get({
+        TableName: this.flashcardsTable,
+        Key: {
+          userId: userId,
+          flashCardId: flashCardId
+        }
+      })
+      .promise()
+
+    if (result.Item !== undefined && result.Item !== null) {
+      return result.Item as FlashCardItem
+    }
+
+    return null
+  }
 }

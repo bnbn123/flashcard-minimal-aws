@@ -54,3 +54,10 @@ export async function createAttachmentPresignedUrl(
   console.log(`createSignedUrl ${flashCardId}`, userId)
   return attachmentUtils.getUploadUrl(flashCardId)
 }
+
+export async function getFlashCardsById(
+  userId: string,
+  flashCardId: string
+): Promise<FlashCardItem> {
+  return flashcardAccess.getFlashCardsById(userId, flashCardId)
+}
