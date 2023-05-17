@@ -10,14 +10,14 @@ const logger = createLogger('flashcardAccess')
 export class FlashCardAccess {
   constructor(
     private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
-    private readonly todosTable = process.env.TODOS_TABLE
+    private readonly flashcardsTable = process.env.FLASHCARDS_TABLE
   ) {}
 
   async getFlashCards(userId: string): Promise<FlashCardItem[]> {
     logger.info('Getting all todo items')
     const result = await this.docClient
       .query({
-        TableName: this.todosTable,
+        TableName: this.flashcardsTable,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId
@@ -32,7 +32,7 @@ export class FlashCardAccess {
     logger.info(`Creating new todo item: ${newTodo.flashCardId}`)
     await this.docClient
       .put({
-        TableName: this.todosTable,
+        TableName: this.flashcardsTable,
         Item: newTodo
       })
       .promise()
@@ -47,7 +47,7 @@ export class FlashCardAccess {
     logger.info(`Updating a todo item: ${flashCardId}`)
     await this.docClient
       .update({
-        TableName: this.todosTable,
+        TableName: this.flashcardsTable,
         Key: { userId, flashCardId },
         ConditionExpression: 'attribute_exists(flashCardId)',
         UpdateExpression: 'set #n = :n, dueDate = :due, done = :dn',
@@ -69,7 +69,7 @@ export class FlashCardAccess {
   async deleteFlashCard(userId: string, flashCardId: string): Promise<void> {
     await this.docClient
       .delete({
-        TableName: this.todosTable,
+        TableName: this.flashcardsTable,
         Key: { userId, flashCardId }
       })
       .promise()
@@ -82,7 +82,7 @@ export class FlashCardAccess {
   ): Promise<void> {
     await this.docClient
       .update({
-        TableName: this.todosTable,
+        TableName: this.flashcardsTable,
         Key: { userId, flashCardId },
         ConditionExpression: 'attribute_exists(flashCardId)',
         UpdateExpression: 'set attachmentUrl = :attachmentUrl',

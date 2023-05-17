@@ -10,7 +10,8 @@ import { CreateFlashCardRequest } from '../../requests/CreateFlashCardRequest'
 
 const logger = createLogger('createFlashCard')
 
-export const handler = middy(
+export const createHandler =
+  () =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing createFlashCard event...')
     const newTodo: CreateFlashCardRequest = JSON.parse(event.body)
@@ -34,10 +35,13 @@ export const handler = middy(
       }
     }
   }
-)
+
+export const handler = middy(createHandler)
 
 handler.use(
   cors({
     credentials: true
   })
 )
+
+export default { handler }
