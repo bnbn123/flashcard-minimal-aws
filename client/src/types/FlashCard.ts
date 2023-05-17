@@ -1,6 +1,6 @@
 export interface FlashCard {
   flashCardId: string
-  flashcardDef: string
+  flashCardDef: string
   createdAt: string
   name: string
   dueDate: string

@@ -1,6 +1,6 @@
 export interface UpdateFlashCardRequest {
   name: string
-  flashcardDef: string
+  flashCardDef: string
   dueDate: string
   done: boolean
 }

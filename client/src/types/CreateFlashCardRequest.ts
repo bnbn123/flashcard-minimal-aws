@@ -1,5 +1,5 @@
 export interface CreateFlashCardRequest {
   name: string
-  flashcardDef: string
+  flashCardDef: string
   dueDate: string
 }

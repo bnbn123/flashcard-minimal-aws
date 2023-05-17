@@ -21,6 +21,8 @@ export async function createFlashCard(
   idToken: string,
   newFlashCard: CreateFlashCardRequest
 ): Promise<FlashCard> {
+  console.log('🚀 ~ file: flashcards-api.ts:24 ~ newFlashCard:', newFlashCard)
+  console.log('🚀 ~ file: flashcards-api.ts:21 ~ createFlashCard:onCalled')
   const response = await Axios.post(
     `${apiEndpoint}/flashcards`,
     JSON.stringify(newFlashCard),

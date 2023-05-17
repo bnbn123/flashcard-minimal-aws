@@ -9,9 +9,10 @@ import {
   Grid,
   Header,
   Icon,
-  Input,
   Image,
-  Loader
+  Loader,
+  Form,
+  Message
 } from 'semantic-ui-react'
 
 import {
@@ -49,22 +50,30 @@ export class FlashCards extends React.PureComponent<
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newFlashCardName: event.target.value })
   }
+  handleDefChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newFlashCardDef: event.target.value })
+  }
 
   onEditButtonClick = (flashCardId: string) => {
     this.props.history.push(`/flashcards/${flashCardId}/edit`)
   }
 
-  onFlashCardCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onFlashCardCreate = async () => {
+    console.log(
+      '🚀 ~ file: FlashCards.tsx:64 ~ onFlashCardCreate= ~ onFlashCardCreate:onClick'
+    )
+
     try {
       const dueDate = this.calculateDueDate()
       const newFlashCard = await createFlashCard(this.props.auth.getIdToken(), {
         name: this.state.newFlashCardName,
-        flashcardDef: this.state.newFlashCardDef,
+        flashCardDef: this.state.newFlashCardDef,
         dueDate
       })
       this.setState({
         flashcards: [...this.state.flashcards, newFlashCard],
-        newFlashCardName: ''
+        newFlashCardName: '',
+        newFlashCardDef: ''
       })
     } catch {
       alert('FlashCard creation failed')
@@ -92,7 +101,7 @@ export class FlashCards extends React.PureComponent<
         flashcard.flashCardId,
         {
           name: flashcard.name,
-          flashcardDef: flashcard.flashcardDef,
+          flashCardDef: flashcard.flashCardDef,
           dueDate: flashcard.dueDate,
           done: !flashcard.done
         }
@@ -135,19 +144,31 @@ export class FlashCards extends React.PureComponent<
     return (
       <Grid.Row>
         <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'New task',
-              onClick: this.onFlashCardCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="To change the world..."
-            onChange={this.handleNameChange}
-          />
+          <Message>
+            <Message.Header>Create Flash Cards</Message.Header>
+            <p>
+              Input the word you want to learn and revisit, then in put it's
+              definition or summary
+            </p>
+          </Message>
+          <Form size="large" onSubmit={this.onFlashCardCreate}>
+            <Form.Group>
+              <Form.Input
+                placeholder="Word"
+                name="name"
+                value={this.state.newFlashCardName}
+                onChange={this.handleNameChange}
+              />
+              <Form.Input
+                placeholder="Add word definition"
+                name="def"
+                value={this.state.newFlashCardDef}
+                onChange={this.handleDefChange}
+              />
+
+              <Form.Button type="submit">Add new flashcard</Form.Button>
+            </Form.Group>
+          </Form>
         </Grid.Column>
         <Grid.Column width={16}>
           <Divider />
